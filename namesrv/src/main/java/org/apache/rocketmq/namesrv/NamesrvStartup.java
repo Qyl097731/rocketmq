@@ -80,6 +80,12 @@ public class NamesrvStartup {
         return null;
     }
 
+    /**
+     * --listenPort 9876 指定端口号
+     * -c configFile 指定配置文件
+     * @param args
+     * @throws Exception
+     */
     public static void parseCommandlineAndConfigFile(String[] args) throws Exception {
         System.setProperty(RemotingCommand.REMOTING_VERSION_KEY, Integer.toString(MQVersion.CURRENT_VERSION));
 
@@ -89,11 +95,13 @@ public class NamesrvStartup {
             System.exit(-1);
             return;
         }
-
+        // 创建NameServer业务参数、NameServer网络参数
         namesrvConfig = new NamesrvConfig();
         nettyServerConfig = new NettyServerConfig();
         nettyClientConfig = new NettyClientConfig();
+        // 监听端口
         nettyServerConfig.setListenPort(9876);
+        // 指定的配置文件的解析并且放入nettyClientConfig、namesrvConfig中
         if (commandLine.hasOption('c')) {
             String file = commandLine.getOptionValue('c');
             if (file != null) {
@@ -113,7 +121,7 @@ public class NamesrvStartup {
                 in.close();
             }
         }
-
+        // 命令行参数
         MixAll.properties2Object(ServerUtil.commandLine2Properties(commandLine), namesrvConfig);
         if (commandLine.hasOption('p')) {
             MixAll.printObjectProperties(logConsole, namesrvConfig);
@@ -124,7 +132,6 @@ public class NamesrvStartup {
             }
             System.exit(0);
         }
-
         if (null == namesrvConfig.getRocketmqHome()) {
             System.out.printf("Please set the %s variable in your environment to match the location of the RocketMQ installation%n", MixAll.ROCKETMQ_HOME_ENV);
             System.exit(-2);
